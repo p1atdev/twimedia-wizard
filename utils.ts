@@ -57,6 +57,12 @@ export const getMediaUrls = async (userId: string, max?: number) => {
 
             const tweets: Record<string, Tweet> = json.globalObjects.tweets
 
+            if (tweets == undefined) {
+                continue
+            } else if (Object.keys(tweets).length === 0) {
+                break
+            }
+
             const mediaUrls = Object.keys(tweets).flatMap((key) => {
                 if (tweets[key].entities.media) {
                     return tweets[key].entities.media.map((media) => {
@@ -66,10 +72,6 @@ export const getMediaUrls = async (userId: string, max?: number) => {
                     return []
                 }
             })
-
-            if (mediaUrls.length === 0) {
-                break
-            }
 
             results.push(...mediaUrls)
 

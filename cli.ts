@@ -4,7 +4,7 @@ import { download } from "./main.ts"
 
 await new Command()
     .name("twimedia-wizard")
-    .version("0.1.0")
+    .version("0.1.1")
     .description("Twitter Media Downloader")
     .arguments("<userId:string>")
     .option("-o, --output <path:string>", "Output path.")
