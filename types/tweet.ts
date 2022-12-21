@@ -1,0 +1,72 @@
+export interface Tweet {
+    created_at: string
+    id: number
+    id_str: string
+    text: string
+    truncated: boolean
+    entities: Entities
+    extended_entities: ExtendedEntities
+    source: string
+    in_reply_to_status_id: null
+    in_reply_to_status_id_str: null
+    in_reply_to_user_id: null
+    in_reply_to_user_id_str: null
+    in_reply_to_screen_name: null
+    user_id: number
+    user_id_str: string
+    geo: null
+    coordinates: null
+    place: null
+    contributors: null
+    is_quote_status: boolean
+    retweet_count: number
+    favorite_count: number
+    conversation_id: number
+    conversation_id_str: string
+    favorited: boolean
+    retweeted: boolean
+    possibly_sensitive: boolean
+    possibly_sensitive_editable: boolean
+    lang: string
+    supplemental_language: null
+}
+
+export interface Entities {
+    hashtags: any[]
+    symbols: any[]
+    user_mentions: any[]
+    urls: any[]
+    media: MediaEntity[]
+}
+
+export interface ExtendedEntities {
+    media: MediaEntity[]
+}
+
+export interface MediaEntity {
+    id: number
+    id_str: string
+    indices: number[]
+    media_url: string
+    media_url_https: string
+    url: string
+    display_url: string
+    expanded_url: string
+    type: string
+    original_info: OriginalInfo
+    sizes: Sizes
+    media_key: string
+}
+
+export interface OriginalInfo {
+    width: number
+    height: number
+    focus_rects: string[]
+}
+
+export interface Sizes {
+    thumb: string[]
+    medium: string[]
+    large: string[]
+    small: string[]
+}
