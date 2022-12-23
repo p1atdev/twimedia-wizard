@@ -1,11 +1,13 @@
-export interface Tweet {
+import { OriginalInfo, Sizes } from "./common.ts"
+
+export interface SearchTweetResult {
     created_at: string
     id: number
     id_str: string
     text: string
     truncated: boolean
-    entities: Entities
-    extended_entities: ExtendedEntities
+    entities: SearchTweetResultEntities
+    extended_entities: SearchTweetResultExtendedEntities
     source: string
     in_reply_to_status_id: null
     in_reply_to_status_id_str: null
@@ -31,19 +33,19 @@ export interface Tweet {
     supplemental_language: null
 }
 
-export interface Entities {
+export interface SearchTweetResultEntities {
     hashtags: any[]
     symbols: any[]
     user_mentions: any[]
     urls: any[]
-    media: MediaEntity[]
+    media: SearchTweetResultMediaEntity[]
 }
 
-export interface ExtendedEntities {
-    media: MediaEntity[]
+export interface SearchTweetResultExtendedEntities {
+    media: SearchTweetResultMediaEntity[]
 }
 
-export interface MediaEntity {
+export interface SearchTweetResultMediaEntity {
     id: number
     id_str: string
     indices: number[]
@@ -56,17 +58,4 @@ export interface MediaEntity {
     original_info: OriginalInfo
     sizes: Sizes
     media_key: string
-}
-
-export interface OriginalInfo {
-    width: number
-    height: number
-    focus_rects: string[]
-}
-
-export interface Sizes {
-    thumb: string[]
-    medium: string[]
-    large: string[]
-    small: string[]
 }
