@@ -24,7 +24,7 @@ export const getUserMediaUrls = async (restId: string, max = 5000) => {
 
             if (tweets == undefined) {
                 continue
-            } else if (Object.keys(tweets).length === 0) {
+            } else if (tweets.length <= 2) {
                 break
             }
 
@@ -44,7 +44,7 @@ export const getUserMediaUrls = async (restId: string, max = 5000) => {
                     }
                     case "TimelineTimelineCursor": {
                         const content = tweet.content as TimelineTimelineCursor
-                        if (content.entryType === "Bottom") {
+                        if (content.cursorType === "Bottom") {
                             cursor = content.value
                         }
                         return []
@@ -94,7 +94,7 @@ export const searchMediaUrls = async (searchQuery: string, max = 5000, live = fa
 
             if (tweets == undefined) {
                 continue
-            } else if (Object.keys(tweets).length === 0) {
+            } else if (Object.keys(tweets).length <= 2) {
                 break
             }
 
@@ -146,6 +146,42 @@ export const searchMediaUrls = async (searchQuery: string, max = 5000, live = fa
     return results
 }
 
+const donwloadFiles = async (urls: string[], path: string) => {
+    for (const [index, url] of urls.entries()) {
+        const filename = url.split("/").pop()
+
+        // log.info("Downloading:", filename)
+
+        try {
+            await Deno.open(`${path}/${filename}`)
+            tty.cursorMove(-1000, 1).text("")
+            log.warn("Skipping", filename, "because file already exists")
+            continue
+        } catch {
+            tty.eraseLine
+                .cursorMove(-1000, 0)
+                .text(`${colors.blue.bold("[INFO]")} Downloading: ${filename} (${index + 1}/${urls.length})`)
+        }
+
+        const res = await fetch(url)
+        const body = res.body
+
+        if (body == null) {
+            tty.cursorMove(-1000, 1).text("")
+            log.warn("Skipping", filename, "because body is null")
+            continue
+        }
+
+        for await (const buffer of body) {
+            await Deno.writeFile(`${path}/${filename}`, buffer, {
+                append: true,
+            })
+        }
+    }
+
+    tty.eraseLine.cursorMove(-1000, 0).text("")
+}
+
 export const downloadUserMedia = async (userId: string, output = "./", max?: number) => {
     try {
         const restId = await getRestID(userId)
@@ -155,6 +191,7 @@ export const downloadUserMedia = async (userId: string, output = "./", max?: num
 
         const urls = await getUserMediaUrls(restId, max)
 
+        tty.eraseLine.cursorMove(-1000, 0).text("")
         log.info("Total count:", urls.length)
 
         // save to output folder
@@ -168,35 +205,7 @@ export const downloadUserMedia = async (userId: string, output = "./", max?: num
             })
         }
 
-        for (const url of urls) {
-            const filename = url.split("/").pop()
-
-            // log.info("Downloading:", filename)
-
-            try {
-                await Deno.open(`${path}/${filename}`)
-                tty.cursorMove(-1000, 1).text("")
-                log.warn("Skipping", filename, "because file already exists")
-                continue
-            } catch {
-                tty.eraseLine.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Downloading: ${filename}`)
-            }
-
-            const res = await fetch(url)
-            const body = res.body
-
-            if (body == null) {
-                tty.cursorMove(-1000, 1).text("")
-                log.warn("Skipping", filename, "because body is null")
-                continue
-            }
-
-            for await (const buffer of body) {
-                await Deno.writeFile(`${path}/${filename}`, buffer, {
-                    append: true,
-                })
-            }
-        }
+        await donwloadFiles(urls, path)
 
         tty.eraseLine.cursorMove(-1000, 0).text("")
 
@@ -214,6 +223,7 @@ export const downloadSearchedMedia = async (searchQuery: string, output = "./", 
 
         const urls = await searchMediaUrls(searchQuery, max, live)
 
+        tty.eraseLine.cursorMove(-1000, 0).text("")
         log.info("Total count:", urls.length)
 
         // save to output folder
@@ -229,34 +239,7 @@ export const downloadSearchedMedia = async (searchQuery: string, output = "./", 
             })
         }
 
-        for (const url of urls) {
-            const filename = url.split("/").pop()
-
-            // log.info("Downloading:", filename)
-
-            try {
-                await Deno.open(`${path}/${filename}`)
-                tty.cursorMove(-1000, 1).text("")
-                log.warn("Skipping", filename, "because file already exists")
-                continue
-            } catch {
-                tty.eraseLine.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Downloading: ${filename}`)
-            }
-
-            const res = await fetch(url)
-            const body = res.body
-
-            if (body == null) {
-                log.warn("Skipping", filename, "because body is null")
-                continue
-            }
-
-            for await (const buffer of body) {
-                await Deno.writeFile(`${path}/${filename}`, buffer, {
-                    append: true,
-                })
-            }
-        }
+        await donwloadFiles(urls, path)
 
         tty.eraseLine.cursorMove(-1000, 0).text("")
 

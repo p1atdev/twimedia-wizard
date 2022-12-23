@@ -70,6 +70,7 @@ export const getUserTweets = async (userId: string, cursor?: string) => {
             withSuperFollowsTweetFields: true,
             withVoice: true,
             withV2Timeline: true,
+            cursor: cursor,
         },
         features: {
             responsive_web_twitter_blue_verified_badge_is_enabled: true,
@@ -89,10 +90,6 @@ export const getUserTweets = async (userId: string, cursor?: string) => {
             responsive_web_enhance_cards_enabled: true,
         },
     })
-
-    if (cursor) {
-        query.data.cursor = cursor
-    }
 
     const res = await client.request({
         method: "GET",

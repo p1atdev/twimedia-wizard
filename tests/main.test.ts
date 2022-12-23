@@ -20,9 +20,35 @@ Deno.test("get a lot of media urls", async () => {
 
     assertExists(restId)
 
+    const count = 500
+    const urls = await getUserMediaUrls(restId, count)
+
+    assertEquals(urls.length, count)
+})
+
+Deno.test("get exceeded amount of media urls", async () => {
+    const restId = await getRestID(userId)
+
+    assertExists(restId)
+
     const count = 1000
     const urls = await getUserMediaUrls(restId, count)
 
+    assertNotEquals(urls.length, count)
+})
+
+Deno.test("get a lot of media urls, and check conflicting", async () => {
+    const restId = await getRestID(userId)
+
+    assertExists(restId)
+
+    const count = 300
+    const urls = await getUserMediaUrls(restId, count)
+
+    // is thare same url?
+    const uniqueUrls = [...new Set(urls)]
+
+    assertEquals(urls.length, uniqueUrls.length)
     assertEquals(urls.length, count)
 })
 
@@ -40,6 +66,16 @@ Deno.test("search a lot of media urls", async () => {
     const urls = await searchMediaUrls(searchQuery, count)
 
     assertEquals(urls.length, count)
+})
+
+Deno.test("search a lot of media urls, and check conflicting", async () => {
+    const count = 150
+    const urls = await searchMediaUrls(searchQuery, count)
+
+    // is thare same url?
+    const uniqueUrls = [...new Set(urls)]
+
+    assertEquals(urls.length, uniqueUrls.length)
 })
 
 Deno.test("search media urls in live", async () => {
