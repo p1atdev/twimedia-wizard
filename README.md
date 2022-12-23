@@ -19,38 +19,46 @@ scoop install deno
 
 # Usage
 
-Clone repository
+Clone repository and build
 
 ```bash
 git clone https://github.com/p1atdev/twimedia-wizard.git
 cd twimedia-wizard
-```
-
-## Basic usage
-
-```bash
-deno task start TWITTER_USER_ID
+deno task build
 ```
 
 ## Help
 
 ```bash
-deno task start --help
+twimedia --help
 ```
 `--help` or `-h`
 
-## Max count
+## User
+
+Specifying user to download.
 
 ```bash
-deno task start TWITTER_USER_ID --max 50
+twimedia user TWITTER_USER_ID --max 50
 ```
 
-`--max` or `-m`
+- -h, --help              - Show this help.
+- -o, --output  <path>    - Output path.
+- -m, --max     <number>  - Maximum number of media to download. Default is 5000
 
-## Output dir
+## Search
+
+Specifying search query to search and download.
 
 ```bash
-deno task start TWITTER_USER_ID --output ./output
+twimedia search SEARCH_QUERY
 ```
 
-`--output` or `-o`
+- -h, --help              - Show this help.
+- -o, --output  <path>    - Output path.
+- -m, --max     <number>  - Maximum number of media to download. Default is 5000
+- -l, --latest            - Download media from Latest tweets. If not specified, it will download media from Top tweets.
+
+# TODO
+
+- [ ] Filtering with likes 
