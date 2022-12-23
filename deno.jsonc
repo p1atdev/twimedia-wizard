@@ -1,6 +1,7 @@
 {
     "tasks": {
         "test": "deno test -A",
+        "test:cov": "deno test -A --coverage=coverage && deno coverage ./coverage --lcov --output=coverage.lcov",
         "start": "deno run -A ./cli.ts",
         "build": "deno compile --allow-net --allow-read --allow-write --output ./twimedia ./cli.ts "
     }

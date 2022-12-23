@@ -1,5 +1,7 @@
 # TwiMedia Wizard
 
+![deno compatibility](https://shield.deno.dev/deno/^1.29)
+
 Twitter media donwloader.
 
 You need [Deno](https://deno.land/manual@v1.29.1/getting_started/installation) to use.

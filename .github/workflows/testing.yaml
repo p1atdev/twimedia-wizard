@@ -1,0 +1,23 @@
+name: Deno Testing
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout Module
+        uses: actions/checkout@v3
+      - name: Setup deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run test
+        run: deno task test:cov
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.lcov
+          fail_ci_if_error: true
