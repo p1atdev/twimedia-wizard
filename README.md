@@ -32,6 +32,8 @@ cd twimedia-wizard
 deno task build
 ```
 
+then `twimedia.exe` (or `twimedia`) will be generated to project root.
+
 ## Help
 
 ```bash
