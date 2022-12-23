@@ -1,6 +1,9 @@
 # TwiMedia Wizard
 
+[![Deno Testing](https://github.com/p1atdev/twimedia-wizard/actions/workflows/testing.yaml/badge.svg)](https://github.com/p1atdev/twimedia-wizard/actions/workflows/testing.yaml)
 ![deno compatibility](https://shield.deno.dev/deno/^1.29)
+[![codecov](https://codecov.io/gh/p1atdev/twimedia-wizard/branch/main/graph/badge.svg?token=o5kZFwUUCM)](https://codecov.io/gh/p1atdev/twimedia-wizard)
+
 
 Twitter media donwloader.
 
