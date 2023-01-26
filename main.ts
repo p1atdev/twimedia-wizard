@@ -342,7 +342,7 @@ export const downloadSearchedMedia = async (searchQuery: string, output = "./", 
 export const dumpTweets = async (tweets: Tweet[], output: string) => {
     // save with json
     const json = JSON.stringify(tweets, null, 4)
-    await Deno.writeTextFile(output, json)
+    await Deno.writeFile(resolve(output, ".."), new TextEncoder().encode(json))
 }
 
 export const downloadTweets = async (

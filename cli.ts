@@ -11,7 +11,7 @@ import {
 
 await new Command()
     .name("twimedia-wizard")
-    .version("0.3.0")
+    .version("0.3.1")
     .description("Twitter Media Downloader")
 
     .command("user", "Download media from a user.")
@@ -30,7 +30,7 @@ await new Command()
             tty.eraseLine.cursorMove(-1000, 0).text("")
             log.info(tweets.length, "tweets found. Dumping to JSON file...")
 
-            dumpTweets(tweets, output)
+            await dumpTweets(tweets, output)
 
             log.success("Done! JSON file is saved to", colors.bold.underline(output))
         } else {
@@ -61,7 +61,7 @@ await new Command()
             tty.eraseLine.cursorMove(-1000, 0).text("")
             log.info(tweets.length, "tweets found. Dumping to JSON file...")
 
-            dumpTweets(tweets, output)
+            await dumpTweets(tweets, output)
 
             log.success("Done! JSON file is saved to", colors.bold.underline(output))
         } else {
