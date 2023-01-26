@@ -48,3 +48,7 @@ export interface Variant {
     content_type: string
     url: string
 }
+
+export interface HashTag {
+    text: string
+}

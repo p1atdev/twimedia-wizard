@@ -1,4 +1,4 @@
-import { OriginalInfo, Palette, Sizes, VideoInfo } from "./common.ts"
+import { HashTag, OriginalInfo, Palette, Sizes, VideoInfo } from "./common.ts"
 
 // export type TweetEntry = TimelineTimelineItemEntry | TimelineTimelineCursorEntry
 
@@ -53,7 +53,7 @@ export interface TimelineTimelineItemEntities {
     media: TimelineTimelineItemMedia[]
     user_mentions: any[]
     urls: any[]
-    hashtags: any[]
+    hashtags: HashTag[]
     symbols: any[]
 }
 

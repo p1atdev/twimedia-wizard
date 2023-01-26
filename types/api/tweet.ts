@@ -1,4 +1,4 @@
-import { OriginalInfo, Sizes } from "./common.ts"
+import { HashTag, OriginalInfo, Sizes } from "./common.ts"
 
 export interface SearchTweetResult {
     created_at: string
@@ -22,6 +22,7 @@ export interface SearchTweetResult {
     contributors: null
     is_quote_status: boolean
     retweet_count: number
+    reply_count: number
     favorite_count: number
     conversation_id: number
     conversation_id_str: string
@@ -34,7 +35,7 @@ export interface SearchTweetResult {
 }
 
 export interface SearchTweetResultEntities {
-    hashtags: any[]
+    hashtags: HashTag[]
     symbols: any[]
     user_mentions: any[]
     urls: any[]
