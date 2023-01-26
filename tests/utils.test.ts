@@ -1,4 +1,4 @@
-import { assertEquals, assertExists } from "../deps.ts"
+import { assertEquals, assertExists, assert } from "../deps.ts"
 import { TweetEntry, TimelineTimelineItem } from "../types/mod.ts"
 import { getRestID, searchTweets, getUserTweets } from "../utils.ts"
 
@@ -36,7 +36,9 @@ Deno.test("get user tweets", async () => {
     const tweets: TweetEntry[] = addEntries.entries
     // console.log(tweets)
 
-    // console.log(tweets)
+    assert(tweets.length > 0)
+
+    console.log(tweets)
     tweets.forEach((tweet) => {
         // console.log(tweet.content)
         if (tweet.content.entryType === "TimelineTimelineItem") {

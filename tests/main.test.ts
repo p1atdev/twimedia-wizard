@@ -1,8 +1,8 @@
-import { getUserMediaUrls, searchMediaUrls } from "../main.ts"
+import { getTweets, getUserMediaUrls, searchMediaUrls } from "../main.ts"
 import { assertEquals, assertExists, assertNotEquals } from "../deps.ts"
 import { getRestID } from "../utils.ts"
 
-const userId = "granbluefantasy"
+const userId = "uma_musu"
 
 Deno.test("get a few media urls", async () => {
     const restId = await getRestID(userId)
@@ -13,6 +13,17 @@ Deno.test("get a few media urls", async () => {
     const urls = await getUserMediaUrls(restId, count)
 
     assertEquals(urls.length, count)
+})
+
+Deno.test("get tweets", async () => {
+    const restId = await getRestID(userId)
+
+    assertExists(restId)
+
+    const count = 500
+    const tweets = await getTweets(restId, count)
+
+    assertEquals(tweets.length, count)
 })
 
 Deno.test("get a lot of media urls", async () => {

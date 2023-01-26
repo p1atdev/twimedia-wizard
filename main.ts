@@ -1,8 +1,95 @@
 import { getRestID, getUserTweets, searchTweets, sha256 } from "./utils.ts"
 import { log } from "./log.ts"
 import { colors, tty, resolve } from "./deps.ts"
-import { TweetEntry, TimelineTimelineItem, SearchTweetResult } from "./types/mod.ts"
-import { TimelineTimelineCursor } from "./types/userTweet.ts"
+import { TweetEntry, TimelineTimelineItem, SearchTweetResult, TimelineTimelineCursor, Tweet } from "./types/mod.ts"
+
+export const getTweets = async (restId: string, max = 5000): Promise<Tweet[]> => {
+    const tweets: Set<Tweet> = new Set()
+    let cursor: string | undefined = undefined
+
+    while (true) {
+        try {
+            const json = await getUserTweets(restId, cursor)
+
+            const addEntries = json.data.user.result.timeline_v2.timeline.instructions.find((i: any) => {
+                return i.type === "TimelineAddEntries"
+            })
+
+            if (addEntries == undefined) {
+                break
+            }
+
+            const tweetEntries: TweetEntry[] = addEntries.entries
+
+            if (tweetEntries == undefined) {
+                continue
+            } else if (tweetEntries.length <= 2) {
+                break
+            }
+
+            const tweetObjects = tweetEntries.map((tweet) => {
+                switch (tweet.content.entryType) {
+                    case "TimelineTimelineItem": {
+                        const content = tweet.content as TimelineTimelineItem
+                        const legacy = content.itemContent.tweet_results.result.legacy
+                        const media = legacy?.entities.media
+
+                        if (!legacy) {
+                            return []
+                        }
+
+                        const result: Tweet = {
+                            mediaUrls: [],
+                            text: legacy.full_text,
+                            isQuote: legacy.is_quote_status,
+                            language: legacy.lang,
+                            replies: legacy.reply_count,
+                            retweets: legacy.retweet_count,
+                            favorites: legacy.favorite_count,
+                        }
+
+                        if (media) {
+                            result.mediaUrls = media.map((entity) => {
+                                return entity.media_url_https
+                            })
+                        }
+
+                        return result
+                    }
+                    case "TimelineTimelineCursor": {
+                        const content = tweet.content as TimelineTimelineCursor
+                        if (content.cursorType === "Bottom") {
+                            cursor = content.value
+                        }
+                        return undefined
+                    }
+                    default: {
+                        return undefined
+                    }
+                }
+            })
+
+            tweetObjects
+                .filter((t): t is Tweet => t !== undefined)
+                .forEach((tweet) => {
+                    tweets.add(tweet)
+                })
+
+            if (max && tweets.size >= max) {
+                tty.cursorMove(-1000, 1).text("")
+                log.info("Max count reached")
+                break
+            }
+
+            tty.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Getting tweets...: ${tweets.size}`)
+        } catch (error) {
+            log.error(error)
+            break
+        }
+    }
+
+    return Array.from(tweets).slice(0, Math.min(tweets.size, max))
+}
 
 export const getUserMediaUrls = async (restId: string, max = 5000) => {
     const results: string[] = []
@@ -32,7 +119,8 @@ export const getUserMediaUrls = async (restId: string, max = 5000) => {
                 switch (tweet.content.entryType) {
                     case "TimelineTimelineItem": {
                         const content = tweet.content as TimelineTimelineItem
-                        const media = content.itemContent.tweet_results.result.legacy?.entities.media
+                        const legacy = content.itemContent.tweet_results.result.legacy
+                        const media = legacy?.entities.media
                         if (media) {
                             const urls = media.map((entity) => {
                                 return entity.media_url_https
@@ -75,7 +163,7 @@ export const getUserMediaUrls = async (restId: string, max = 5000) => {
 }
 
 export const searchMediaUrls = async (searchQuery: string, max = 5000, live = false) => {
-    const results: string[] = []
+    const results: Set<string> = new Set()
     let cursor = ""
 
     while (true) {
@@ -108,12 +196,13 @@ export const searchMediaUrls = async (searchQuery: string, max = 5000, live = fa
                 }
             })
 
-            results.push(...mediaUrls)
+            mediaUrls.forEach((url) => {
+                results.add(url)
+            })
 
-            if (max && results.length >= max) {
+            if (max && results.size >= max) {
                 tty.cursorMove(-1000, 1).text("")
                 log.info("Max count reached")
-                results.splice(max)
                 break
             }
 
@@ -136,14 +225,14 @@ export const searchMediaUrls = async (searchQuery: string, max = 5000, live = fa
                 break
             }
 
-            tty.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Getting media urls...: ${results.length}`)
+            tty.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Getting media urls...: ${results.size}`)
         } catch (error) {
             log.error(error)
             break
         }
     }
 
-    return results
+    return Array.from(results).slice(0, Math.min(max, results.size))
 }
 
 const donwloadFiles = async (urls: string[], path: string) => {
