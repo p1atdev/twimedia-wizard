@@ -2,6 +2,7 @@ import { Command, colors, tty } from "./deps.ts"
 import { log } from "./log.ts"
 import {
     downloadSearchedMedia,
+    downloadTweets,
     downloadUserMedia,
     dumpTweets,
     getUserMediaTweetData,
@@ -12,6 +13,7 @@ await new Command()
     .name("twimedia-wizard")
     .version("0.3.0")
     .description("Twitter Media Downloader")
+
     .command("user", "Download media from a user.")
     .arguments("<userId:string>")
     .option("-o, --output <path:string>", "Output path.", {
@@ -35,6 +37,7 @@ await new Command()
             await downloadUserMedia(userId, output, max)
         }
     })
+
     .command("search", "Download media from a search query.")
     .arguments("<query:string>")
     .option("-o, --output <path:string>", "Output path.", {
@@ -65,4 +68,37 @@ await new Command()
             await downloadSearchedMedia(query, output, max, latest)
         }
     })
+
+    .command("download", "Download media files and captions from a JSON file.")
+    .arguments("<path:string>")
+    .option("-o, --output <path:string>", "Output path.", {
+        required: true,
+    })
+    .option("--min-favorites <number:number>", "Minimum number of favorites to download.", {
+        default: 10,
+    })
+    .option("--min-retweets <number:number>", "Minimum number of retweets to download.", {
+        default: 0,
+    })
+    .option("--caption [boolean:boolean]", "Download captions.", {
+        default: false,
+    })
+    .action(async ({ output, minFavorites, minRetweets, caption }, path) => {
+        log.info("Download media files and captions from", colors.bold.underline(path))
+        if (caption) {
+            log.info("Download captions together")
+        }
+        log.info("Minimum number of favorites:", colors.bold.underline(minFavorites.toString()))
+        log.info("Minimum number of retweets:", colors.bold.underline(minRetweets.toString()))
+
+        const jsonText = await Deno.readTextFile(path)
+        const tweets = JSON.parse(jsonText)
+
+        log.info(tweets.length, "tweets found. Downloading media files...")
+
+        await downloadTweets(tweets, output, minFavorites, minRetweets, caption)
+
+        log.success("Done! Media files are saved to", colors.bold.underline(output))
+    })
+
     .parse(Deno.args)

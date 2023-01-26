@@ -344,3 +344,60 @@ export const dumpTweets = async (tweets: Tweet[], output: string) => {
     const json = JSON.stringify(tweets, null, 4)
     await Deno.writeTextFile(output, json)
 }
+
+export const downloadTweets = async (
+    tweets: Tweet[],
+    output: string,
+    minFavorites: number,
+    minRetweets: number,
+    caption: boolean
+) => {
+    try {
+        await Deno.stat(output)
+    } catch {
+        await Deno.mkdir(output, {
+            recursive: true,
+        })
+    }
+
+    for (const tweet of tweets.filter((tweet) => tweet.favorites >= minFavorites && tweet.retweets >= minRetweets)) {
+        const { mediaUrls, hashTags } = tweet
+
+        const tags = hashTags
+        const captionText = tags.join(", ")
+
+        for (const url of mediaUrls) {
+            const res = await fetch(url)
+            const body = res.body
+
+            if (!body) {
+                continue
+            }
+
+            const filename = url.split("/").pop()
+
+            if (!filename) {
+                continue
+            }
+
+            const path = resolve(output, filename)
+
+            try {
+                await Deno.stat(path)
+                continue
+            } catch {
+                for await (const buffer of body) {
+                    await Deno.writeFile(path, buffer, {
+                        append: true,
+                    })
+                }
+            }
+
+            if (caption) {
+                const imageName = filename.split(".")[0]
+                const captionPath = resolve(output, `${imageName}.txt`)
+                await Deno.writeTextFile(captionPath, captionText)
+            }
+        }
+    }
+}
