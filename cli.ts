@@ -1,32 +1,68 @@
-import { Command, colors } from "./deps.ts"
+import { Command, colors, tty } from "./deps.ts"
 import { log } from "./log.ts"
-import { downloadSearchedMedia, downloadUserMedia } from "./main.ts"
+import {
+    downloadSearchedMedia,
+    downloadUserMedia,
+    dumpTweets,
+    getUserMediaTweetData,
+    searchMediaTweetData,
+} from "./main.ts"
 
 await new Command()
     .name("twimedia-wizard")
-    .version("0.2.1")
+    .version("0.3.0")
     .description("Twitter Media Downloader")
     .command("user", "Download media from a user.")
     .arguments("<userId:string>")
-    .option("-o, --output <path:string>", "Output path.")
+    .option("-o, --output <path:string>", "Output path.", {
+        required: true,
+    })
     .option("-m, --max <number:number>", "Maximum number of media to download. Default is 5000")
-    .action(async ({ output, max }, userId) => {
+    .option("-d, --dump [boolean:boolean]", "Dump information to a json file.")
+    .action(async ({ output, max, dump }, userId) => {
         log.info("Downloading media from", colors.bold.underline(userId))
-        await downloadUserMedia(userId, output, max)
+
+        if (dump) {
+            const tweets = await getUserMediaTweetData(userId, max)
+
+            tty.eraseLine.cursorMove(-1000, 0).text("")
+            log.info(tweets.length, "tweets found. Dumping to JSON file...")
+
+            dumpTweets(tweets, output)
+
+            log.success("Done! JSON file is saved to", colors.bold.underline(output))
+        } else {
+            await downloadUserMedia(userId, output, max)
+        }
     })
     .command("search", "Download media from a search query.")
     .arguments("<query:string>")
-    .option("-o, --output <path:string>", "Output path.")
+    .option("-o, --output <path:string>", "Output path.", {
+        required: true,
+    })
     .option("-m, --max <number:number>", "Maximum number of media to download. Default is 5000")
     .option(
         "-l, --latest",
         "Download media from Latest tweets. If not specified, it will download media from Top tweets."
     )
-    .action(async ({ output, max, latest }, query) => {
+    .option("-d, --dump [boolean:boolean]", "Dump information to a json file.")
+    .action(async ({ output, max, latest, dump }, query) => {
         log.info("Search and download media from", colors.bold.underline(query))
         if (latest) {
             log.info("Mode:", colors.bold.underline("latest"))
         }
-        await downloadSearchedMedia(query, output, max, latest)
+
+        if (dump) {
+            const tweets = await searchMediaTweetData(query, max, latest)
+
+            tty.eraseLine.cursorMove(-1000, 0).text("")
+            log.info(tweets.length, "tweets found. Dumping to JSON file...")
+
+            dumpTweets(tweets, output)
+
+            log.success("Done! JSON file is saved to", colors.bold.underline(output))
+        } else {
+            await downloadSearchedMedia(query, output, max, latest)
+        }
     })
     .parse(Deno.args)
