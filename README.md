@@ -46,26 +46,42 @@ twimedia --help
 Specifying user to download.
 
 ```bash
-twimedia user TWITTER_USER_ID --max 50
+twimedia user TWITTER_USER_ID --max 50  -o ./output
 ```
 
-- -h, --help              - Show this help.
-- -o, --output  <path>    - Output path.
-- -m, --max     <number>  - Maximum number of media to download. Default is 5000
+- -h, --help               - Show this help.
+- -o, --output  <path>     - Output path.                                          (required)
+- -m, --max     <number>   - Maximum number of media to download. Default is 5000
+- -d, --dump    [boolean]  - Dump information to a json file.
 
 ## Search
 
 Specifying search query to search and download.
 
 ```bash
-twimedia search SEARCH_QUERY
+twimedia search SEARCH_QUERY -o ./output
 ```
 
-- -h, --help              - Show this help.
-- -o, --output  <path>    - Output path.
-- -m, --max     <number>  - Maximum number of media to download. Default is 5000
-- -l, --latest            - Download media from Latest tweets. If not specified, it will download media from Top tweets.
+- -h, --help               - Show this help.
+- -o, --output  <path>     - Output path.                                                                      (required)
+- -m, --max     <number>   - Maximum number of media to download. Default is 5000
+- -l, --latest             - Download media from Latest tweets. If not specified, it will download media from Top tweets.
+- -d, --dump    [boolean]  - Dump information to a json file.
+
+## Download
+
+Download from dumped json.
+
+```bash
+twimedia download path/to/json -o ./output
+```
+
+- -h, --help                  - Show this help.
+- -o, --output     <path>     - Output path.                              (required)
+- --min-favorites  <number>   - Minimum number of favorites to download.  (Default: 10)
+- --min-retweets   <number>   - Minimum number of retweets to download.   (Default: 0)
+- --caption        [boolean]  - Download captions.                        (Default: false)
 
 # TODO
 
-- [ ] Filtering with likes 
+- [-] Filtering with likes. (only works with dumped json) 
