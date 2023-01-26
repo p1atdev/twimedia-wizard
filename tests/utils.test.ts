@@ -38,7 +38,7 @@ Deno.test("get user tweets", async () => {
 
     assert(tweets.length > 0)
 
-    console.log(tweets)
+    // console.log(tweets)
     tweets.forEach((tweet) => {
         // console.log(tweet.content)
         if (tweet.content.entryType === "TimelineTimelineItem") {

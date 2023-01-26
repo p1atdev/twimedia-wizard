@@ -3,8 +3,9 @@ import { log } from "./log.ts"
 import { colors, tty, resolve } from "./deps.ts"
 import { TweetEntry, TimelineTimelineItem, SearchTweetResult, TimelineTimelineCursor, Tweet } from "./types/mod.ts"
 
-export const getTweets = async (restId: string, max = 5000): Promise<Tweet[]> => {
+export const getUserMediaTweetData = async (restId: string, max = 5000): Promise<Tweet[]> => {
     const tweets: Set<Tweet> = new Set()
+    const mediaUrls: Set<string> = new Set()
     let cursor: string | undefined = undefined
 
     while (true) {
@@ -52,6 +53,9 @@ export const getTweets = async (restId: string, max = 5000): Promise<Tweet[]> =>
                             result.mediaUrls = media.map((entity) => {
                                 return entity.media_url_https
                             })
+                            result.mediaUrls.forEach((url) => {
+                                mediaUrls.add(url)
+                            })
                         }
 
                         return result
@@ -75,7 +79,7 @@ export const getTweets = async (restId: string, max = 5000): Promise<Tweet[]> =>
                     tweets.add(tweet)
                 })
 
-            if (max && tweets.size >= max) {
+            if (max && mediaUrls.size >= max) {
                 tty.cursorMove(-1000, 1).text("")
                 log.info("Max count reached")
                 break
@@ -88,7 +92,9 @@ export const getTweets = async (restId: string, max = 5000): Promise<Tweet[]> =>
         }
     }
 
-    return Array.from(tweets).slice(0, Math.min(tweets.size, max))
+    return Array.from(tweets)
+        .filter((t) => t.mediaUrls.length > 0)
+        .slice(0, Math.min(tweets.size, max))
 }
 
 export const getUserMediaUrls = async (restId: string, max = 5000) => {
