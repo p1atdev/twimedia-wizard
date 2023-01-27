@@ -340,9 +340,18 @@ export const downloadSearchedMedia = async (searchQuery: string, output = "./", 
 }
 
 export const dumpTweets = async (tweets: Tweet[], output: string) => {
+    const parentPath = resolve(output, "..")
+    try {
+        await Deno.stat(parentPath)
+    } catch {
+        await Deno.mkdir(parentPath, {
+            recursive: true,
+        })
+    }
+
     // save with json
     const json = JSON.stringify(tweets, null, 4)
-    await Deno.writeFile(resolve(output, ".."), new TextEncoder().encode(json))
+    await Deno.writeFile(output, new TextEncoder().encode(json))
 }
 
 export const downloadTweets = async (
