@@ -8,10 +8,11 @@ import {
     getUserMediaTweetData,
     searchMediaTweetData,
 } from "./main.ts"
+import { getRestID } from "./utils.ts"
 
 await new Command()
     .name("twimedia-wizard")
-    .version("0.3.1")
+    .version("0.3.3")
     .description("Twitter Media Downloader")
 
     .command("user", "Download media from a user.")
@@ -25,7 +26,8 @@ await new Command()
         log.info("Downloading media from", colors.bold.underline(userId))
 
         if (dump) {
-            const tweets = await getUserMediaTweetData(userId, max)
+            const restId = await getRestID(userId)
+            const tweets = await getUserMediaTweetData(restId, max)
 
             tty.eraseLine.cursorMove(-1000, 0).text("")
             log.info(tweets.length, "tweets found. Dumping to JSON file...")
