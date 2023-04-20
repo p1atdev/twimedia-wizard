@@ -1,4 +1,4 @@
-import { getRestID, getUserTweets, searchTweets, sha256 } from "./utils.ts"
+import { SearchQuery, getRestID, getUserTweets, searchTweets, sha256 } from "./utils.ts"
 import { log } from "./log.ts"
 import { colors, tty, resolve } from "./deps.ts"
 import { TweetEntry, TimelineTimelineItem, SearchTweetResult, TimelineTimelineCursor, Tweet } from "./types/mod.ts"
@@ -33,11 +33,10 @@ export const getUserMediaTweetData = async (restId: string, max = 5000): Promise
                     case "TimelineTimelineItem": {
                         const content = tweet.content as TimelineTimelineItem
                         const legacy = content.itemContent.tweet_results.result.legacy
-                        const media = legacy?.entities.media
-
                         if (!legacy) {
-                            return []
+                            return undefined
                         }
+                        const media = legacy?.entities.media
 
                         const result: Tweet = {
                             mediaUrls: [],
@@ -118,12 +117,18 @@ export const searchMediaTweetData = async (searchQuery: string, max = 5000, live
 
     while (true) {
         try {
-            const queries: Record<string, string> = {
+            const queries: Record<string, any> = {
                 cursor: cursor,
             }
 
             if (live) {
-                queries.tweet_search_mode = "live"
+                for (const [key, value] of Object.entries(SearchQuery.latest)) {
+                    queries[key] = value
+                }
+            } else {
+                for (const [key, value] of Object.entries(SearchQuery.top)) {
+                    queries[key] = value
+                }
             }
 
             const json = await searchTweets(searchQuery, queries)

@@ -11,7 +11,7 @@ Deno.test("get user rest id", async () => {
 })
 
 Deno.test("search user tweets ", async () => {
-    const userId = "x_angelkawaii_x"
+    const userId = "from:@x_angelkawaii_x"
     const json = await searchTweets(`(from:${userId}) -filter:replies`)
     const tweets = json.globalObjects.tweets
 

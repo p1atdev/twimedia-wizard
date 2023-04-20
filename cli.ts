@@ -12,7 +12,7 @@ import { getRestID } from "./utils.ts"
 
 await new Command()
     .name("twimedia-wizard")
-    .version("0.3.3")
+    .version("0.3.4")
     .description("Twitter Media Downloader")
 
     .command("user", "Download media from a user.")
