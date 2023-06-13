@@ -206,6 +206,13 @@
     "https://deno.land/x/whisper@0.1.3/src/guest_token.ts": "d714d1b9150c653c3c216510b32eac2ee6c1bccc5bea432496c9ddf6bfad321d",
     "https://deno.land/x/whisper@0.1.3/src/mod.ts": "4a980febedaa9e938294c470b97e4bf9e27022c7070197f2255b45ea12180daf",
     "https://deno.land/x/whisper@0.1.3/src/request.ts": "318bf4b33d5142fdede1f008ae434c1e487fdc265f001922bb16f7740b253248",
-    "https://deno.land/x/whisper@0.1.3/src/static.ts": "73059008ff4a0755d8b3a832d335d12cc5bb1c315007e531c02c92566e267521"
+    "https://deno.land/x/whisper@0.1.3/src/static.ts": "73059008ff4a0755d8b3a832d335d12cc5bb1c315007e531c02c92566e267521",
+    "https://deno.land/x/whisper@0.1.4/mod.ts": "9473507398048cb24dbb37b3a220777106c69c28d573898648deb2bb84a7e131",
+    "https://deno.land/x/whisper@0.1.4/src/client.ts": "7b2cea21d340b0586b9eee8f7d34e0a5171c6815e3c24767844bf7564b6c53c5",
+    "https://deno.land/x/whisper@0.1.4/src/graph_query_ids.ts": "38901646dc048c6e45f423969a7ba42dcfef962d7f8f5c4320749ee11c244e93",
+    "https://deno.land/x/whisper@0.1.4/src/guest_token.ts": "d714d1b9150c653c3c216510b32eac2ee6c1bccc5bea432496c9ddf6bfad321d",
+    "https://deno.land/x/whisper@0.1.4/src/mod.ts": "4a980febedaa9e938294c470b97e4bf9e27022c7070197f2255b45ea12180daf",
+    "https://deno.land/x/whisper@0.1.4/src/request.ts": "318bf4b33d5142fdede1f008ae434c1e487fdc265f001922bb16f7740b253248",
+    "https://deno.land/x/whisper@0.1.4/src/static.ts": "73059008ff4a0755d8b3a832d335d12cc5bb1c315007e531c02c92566e267521"
   }
 }

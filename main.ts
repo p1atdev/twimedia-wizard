@@ -1,7 +1,13 @@
-import { SearchQuery, getRestID, getUserTweets, searchTweets, sha256 } from "./utils.ts"
+import { SearchQuery, getRestID, getUserTweets, searchTweets, getListTweets, sha256 } from "./utils.ts"
 import { log } from "./log.ts"
 import { colors, tty, resolve } from "./deps.ts"
 import { TweetEntry, TimelineTimelineItem, SearchTweetResult, TimelineTimelineCursor, Tweet } from "./types/mod.ts"
+
+const setLargeSizeParam = (url: string) => {
+    const params = new URL(url).searchParams
+    params.set("name", "large")
+    return `${url}?${params.toString()}`
+}
 
 export const getUserMediaTweetData = async (restId: string, max = 5000): Promise<Tweet[]> => {
     const tweets: Set<Tweet> = new Set()
@@ -105,7 +111,9 @@ export const getUserMediaUrls = async (restId: string, max = 5000) => {
                 return tweet.mediaUrls
             })
         ),
-    ]
+    ].map((url) => {
+        return setLargeSizeParam(url)
+    })
 
     return mediaUrls.slice(0, max)
 }
@@ -234,6 +242,115 @@ export const searchMediaUrls = async (searchQuery: string, max = 5000, live = fa
                 return tweet.mediaUrls
             })
         ),
+    ].map((url) => {
+        return setLargeSizeParam(url)
+    })
+
+    return mediaUrls.slice(0, max)
+}
+
+export const getListMediaTweetData = async (listId: string, max = 5000): Promise<Tweet[]> => {
+    const tweets: Set<Tweet> = new Set()
+    const mediaUrls: Set<string> = new Set()
+    let cursor: string | undefined = undefined
+
+    while (true) {
+        try {
+            const json = await getListTweets(listId, cursor)
+
+            const addEntries = json.data.list.tweets_timeline.timeline.instructions.find((i: any) => {
+                return i.type === "TimelineAddEntries"
+            })
+
+            if (addEntries == undefined) {
+                break
+            }
+
+            const tweetEntries: TweetEntry[] = addEntries.entries
+
+            if (tweetEntries == undefined) {
+                continue
+            } else if (tweetEntries.length <= 2) {
+                break
+            }
+
+            const tweetObjects = tweetEntries.map((tweet) => {
+                switch (tweet.content.entryType) {
+                    case "TimelineTimelineItem": {
+                        const content = tweet.content as TimelineTimelineItem
+                        const legacy = content.itemContent.tweet_results.result.legacy
+                        if (!legacy) {
+                            return undefined
+                        }
+                        const media = legacy?.entities.media
+
+                        const result: Tweet = {
+                            mediaUrls: [],
+                            text: legacy.full_text,
+                            hashTags: legacy.entities.hashtags.map((entity) => {
+                                return entity.text
+                            }),
+                            isQuote: legacy.is_quote_status,
+                            language: legacy.lang,
+                            replies: legacy.reply_count,
+                            retweets: legacy.retweet_count,
+                            favorites: legacy.favorite_count,
+                        }
+
+                        if (media) {
+                            result.mediaUrls = media.map((entity) => {
+                                return entity.media_url_https
+                            })
+                            result.mediaUrls.forEach((url) => {
+                                mediaUrls.add(url)
+                            })
+                        }
+
+                        return result
+                    }
+                    case "TimelineTimelineCursor": {
+                        const content = tweet.content as TimelineTimelineCursor
+                        if (content.cursorType === "Bottom") {
+                            cursor = content.value
+                        }
+                        return undefined
+                    }
+                    default: {
+                        return undefined
+                    }
+                }
+            })
+
+            tweetObjects
+                .filter((t): t is Tweet => t !== undefined)
+                .forEach((tweet) => {
+                    tweets.add(tweet)
+                })
+
+            if (max && mediaUrls.size >= max) {
+                tty.cursorMove(-1000, 1).text("")
+                log.info("Max count reached")
+                break
+            }
+
+            tty.cursorMove(-1000, 0).text(`${colors.blue.bold("[INFO]")} Getting tweets...: ${tweets.size}`)
+        } catch (error) {
+            log.error(error)
+            break
+        }
+    }
+
+    return Array.from(tweets).filter((t) => t.mediaUrls.length > 0)
+}
+
+export const getListMediaUrls = async (listId: string, max = 5000) => {
+    const tweets = await getListMediaTweetData(listId, max)
+    const mediaUrls = [
+        ...new Set(
+            tweets.flatMap((tweet) => {
+                return tweet.mediaUrls
+            })
+        ),
     ]
 
     return mediaUrls.slice(0, max)
@@ -241,7 +358,7 @@ export const searchMediaUrls = async (searchQuery: string, max = 5000, live = fa
 
 const donwloadFiles = async (urls: string[], path: string) => {
     for (const [index, url] of urls.entries()) {
-        const filename = url.split("/").pop()
+        const filename = url.split("/").pop()?.split("?")[0]
 
         // log.info("Downloading:", filename)
 
@@ -323,6 +440,36 @@ export const downloadSearchedMedia = async (searchQuery: string, output = "./", 
         const hash = await sha256(searchQuery).then((hash) => hash.slice(0, 8))
         log.info("Search hash created:", hash)
         const path = resolve(output, hash)
+
+        try {
+            await Deno.open(path)
+        } catch {
+            await Deno.mkdir(path, {
+                recursive: true,
+            })
+        }
+
+        await donwloadFiles(urls, path)
+
+        tty.eraseLine.cursorMove(-1000, 0).text("")
+
+        log.info("Downloaded", urls.length, "files")
+        log.info("Saved to", path)
+        log.success("Done!")
+    } catch (error) {
+        log.error(error)
+    }
+}
+
+export const downloadListMedia = async (listId: string, output = "./", max?: number) => {
+    try {
+        const urls = await getListMediaUrls(listId, max)
+
+        tty.eraseLine.cursorMove(-1000, 0).text("")
+        log.info("Total count:", urls.length)
+
+        // save to output folder
+        const path = resolve(output, listId)
 
         try {
             await Deno.open(path)

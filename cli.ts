@@ -4,9 +4,11 @@ import {
     downloadSearchedMedia,
     downloadTweets,
     downloadUserMedia,
+    downloadListMedia,
     dumpTweets,
     getUserMediaTweetData,
     searchMediaTweetData,
+    getListMediaTweetData,
 } from "./main.ts"
 import { getRestID } from "./utils.ts"
 
@@ -37,6 +39,30 @@ await new Command()
             log.success("Done! JSON file is saved to", colors.bold.underline(output))
         } else {
             await downloadUserMedia(userId, output, max)
+        }
+    })
+
+    .command("list", "Download media from a list.")
+    .arguments("<listId:string>")
+    .option("-o, --output <path:string>", "Output path.", {
+        required: true,
+    })
+    .option("-m, --max <number:number>", "Maximum number of media to download. Default is 5000")
+    .option("-d, --dump [boolean:boolean]", "Dump information to a json file.")
+    .action(async ({ output, max, dump }, listId) => {
+        log.info("Downloading media from list ID", colors.bold.underline(listId))
+
+        if (dump) {
+            const tweets = await getListMediaTweetData(listId, max)
+
+            tty.eraseLine.cursorMove(-1000, 0).text("")
+            log.info(tweets.length, "tweets found. Dumping to JSON file...")
+
+            await dumpTweets(tweets, output)
+
+            log.success("Done! JSON file is saved to", colors.bold.underline(output))
+        } else {
+            await downloadListMedia(listId, output, max)
         }
     })
 

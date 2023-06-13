@@ -91,9 +91,12 @@ export const getRestID = async (userId: string) => {
             withSafetyModeUserFields: false,
         },
         features: {
-            blue_business_profile_image_shape_enabled: true,
+            hidden_profile_likes_enabled: false,
             responsive_web_graphql_exclude_directive_enabled: true,
             verified_phone_label_enabled: false,
+            subscriptions_verification_info_verified_since_enabled: true,
+            highlights_tweets_tab_ui_enabled: true,
+            creator_subscriptions_tweet_preview_api_enabled: true,
             responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
             responsive_web_graphql_timeline_navigation_enabled: true,
         },
@@ -145,34 +148,28 @@ export const getUserTweets = async (userId: string, cursor?: string) => {
             count: 500,
             includePromotedContent: true,
             withQuickPromoteEligibilityTweetFields: true,
-            withSuperFollowsUserFields: true,
-            withDownvotePerspective: false,
-            withReactionsMetadata: false,
-            withReactionsPerspective: false,
-            withSuperFollowsTweetFields: true,
             withVoice: true,
             withV2Timeline: true,
             cursor: cursor,
         },
         features: {
-            blue_business_profile_image_shape_enabled: true,
+            rweb_lists_timeline_redesign_enabled: true,
             responsive_web_graphql_exclude_directive_enabled: true,
             verified_phone_label_enabled: false,
+            creator_subscriptions_tweet_preview_api_enabled: true,
             responsive_web_graphql_timeline_navigation_enabled: true,
             responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
             tweetypie_unmention_optimization_enabled: true,
-            vibe_api_enabled: true,
             responsive_web_edit_tweet_api_enabled: true,
             graphql_is_translatable_rweb_tweet_is_translatable_enabled: true,
             view_counts_everywhere_api_enabled: true,
             longform_notetweets_consumption_enabled: true,
             tweet_awards_web_tipping_enabled: false,
-            freedom_of_speech_not_reach_fetch_enabled: false,
+            freedom_of_speech_not_reach_fetch_enabled: true,
             standardized_nudges_misinfo: true,
             tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled: false,
-            interactive_text_enabled: true,
-            responsive_web_text_conversations_enabled: false,
             longform_notetweets_rich_text_read_enabled: true,
+            longform_notetweets_inline_media_enabled: false,
             responsive_web_enhance_cards_enabled: false,
         },
     })
@@ -187,6 +184,80 @@ export const getUserTweets = async (userId: string, cursor?: string) => {
     if (res.status !== 200) {
         throw new Error(`Request failed with status ${res.status}: ${res.statusText}`)
     }
+
+    const json = await res.json()
+
+    return json
+}
+
+export const getListID = async (listId: string) => {
+    const query = new RequestQuery({
+        variables: { listId: listId },
+        features: {
+            rweb_lists_timeline_redesign_enabled: true,
+            blue_business_profile_image_shape_enabled: true,
+            responsive_web_graphql_exclude_directive_enabled: true,
+            verified_phone_label_enabled: false,
+            responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
+            responsive_web_graphql_timeline_navigation_enabled: true,
+        },
+    })
+
+    const res = await client.request({
+        method: "GET",
+        urlType: "gql",
+        path: "ListByRestId",
+        query: query,
+    })
+
+    if (res.status !== 200) {
+        throw new Error(`Request failed with status ${res.status}: ${res.statusText}`)
+    }
+
+    const json = await res.json()
+
+    return json.data.list
+}
+
+export const getListTweets = async (listId: string, cursor?: string) => {
+    const query = new RequestQuery({
+        variables: {
+            listId: listId,
+            count: 500,
+            cursor: cursor,
+        },
+        features: {
+            rweb_lists_timeline_redesign_enabled: true,
+            blue_business_profile_image_shape_enabled: true,
+            responsive_web_graphql_exclude_directive_enabled: true,
+            verified_phone_label_enabled: false,
+            creator_subscriptions_tweet_preview_api_enabled: true,
+            responsive_web_graphql_timeline_navigation_enabled: true,
+            responsive_web_graphql_skip_user_profile_image_extensions_enabled: false,
+            tweetypie_unmention_optimization_enabled: true,
+            vibe_api_enabled: true,
+            responsive_web_edit_tweet_api_enabled: true,
+            graphql_is_translatable_rweb_tweet_is_translatable_enabled: true,
+            view_counts_everywhere_api_enabled: true,
+            longform_notetweets_consumption_enabled: true,
+            tweet_awards_web_tipping_enabled: false,
+            freedom_of_speech_not_reach_fetch_enabled: true,
+            standardized_nudges_misinfo: true,
+            tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled: false,
+            interactive_text_enabled: true,
+            responsive_web_text_conversations_enabled: false,
+            longform_notetweets_rich_text_read_enabled: true,
+            longform_notetweets_inline_media_enabled: false,
+            responsive_web_enhance_cards_enabled: false,
+        },
+    })
+
+    const res = await client.request({
+        method: "GET",
+        urlType: "gql",
+        path: "ListLatestTweetsTimeline",
+        query: query,
+    })
 
     if (res.status !== 200) {
         throw new Error(`Request failed with status ${res.status}: ${res.statusText}`)

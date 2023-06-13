@@ -1,4 +1,11 @@
-import { getUserMediaTweetData, getUserMediaUrls, searchMediaTweetData, searchMediaUrls } from "../main.ts"
+import {
+    getUserMediaTweetData,
+    getUserMediaUrls,
+    searchMediaTweetData,
+    searchMediaUrls,
+    getListMediaTweetData,
+    getListMediaUrls,
+} from "../main.ts"
 import { assertEquals, assertExists, assertNotEquals, assert } from "../deps.ts"
 import { getRestID } from "../utils.ts"
 
@@ -24,6 +31,9 @@ Deno.test("get a few media urls", async () => {
     const urls = await getUserMediaUrls(restId, count)
 
     assertEquals(urls.length, count)
+    urls.forEach((url) => {
+        assert(url.includes("name=large"), url)
+    })
 })
 
 Deno.test("get media tweets", async () => {
@@ -113,4 +123,40 @@ Deno.test("search media urls in live", async () => {
     const liveUrls = await searchMediaUrls(searchQuery, count, true)
 
     assertNotEquals(urls, liveUrls)
+})
+
+Deno.test("get a few media tweets from list", async () => {
+    const listId = "1657009790193917952"
+
+    const count = 5
+    const tweets = await getListMediaTweetData(listId, count)
+
+    assert(tweets.length >= count)
+})
+
+Deno.test("get a few media urls from list", async () => {
+    const listId = "1657009790193917952"
+
+    const count = 5
+    const urls = await getListMediaUrls(listId, count)
+
+    assertEquals(urls.length, count)
+})
+
+Deno.test("get media tweets from list", async () => {
+    const listId = "1657009790193917952"
+
+    const count = 50
+    const tweets = await getListMediaTweetData(listId, count)
+
+    assert(tweets.length >= count)
+})
+
+Deno.test("get a lot of media urls from list", async () => {
+    const listId = "1657009790193917952"
+
+    const count = 500
+    const urls = await getListMediaUrls(listId, count)
+
+    assertEquals(urls.length, count)
 })
