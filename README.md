@@ -54,7 +54,9 @@ twimedia user TWITTER_USER_ID --max 50  -o ./output
 - -m, --max     <number>   - Maximum number of media to download. Default is 5000
 - -d, --dump    [boolean]  - Dump information to a json file.
 
-## Search
+## Search (deprecated)
+
+This method is not working now.
 
 Specifying search query to search and download.
 
@@ -66,6 +68,19 @@ twimedia search SEARCH_QUERY -o ./output
 - -o, --output  <path>     - Output path.                                                                      (required)
 - -m, --max     <number>   - Maximum number of media to download. Default is 5000
 - -l, --latest             - Download media from Latest tweets. If not specified, it will download media from Top tweets.
+- -d, --dump    [boolean]  - Dump information to a json file.
+
+## List
+
+Specifying list id to download.
+
+```bash
+twimedia list TWITTER_LIST_ID --max 50  -o ./output
+```
+
+- -h, --help               - Show this help.
+- -o, --output  <path>     - Output path.                               (required)
+- -m, --max     <number>   - Maximum number of media to download. Default is 5000
 - -d, --dump    [boolean]  - Dump information to a json file.
 
 ## Download
